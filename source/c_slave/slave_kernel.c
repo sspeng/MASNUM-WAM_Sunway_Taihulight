@@ -184,10 +184,6 @@ void standard_wait_flag(int my_core)
             if(local_flag[0] >= slave_flag_to_wait)
                 break;
         }
-
-        //if(param.host_mpi_rank == 0 && my_core == 0)
-        //    printf("    ####    waiting %ld, get host flag %ld, %ld, %ld, %ld\n", slave_flag_to_wait, local_flag[0], local_flag[1], local_flag[2], local_flag[3]);
-
         slave_flag_to_wait++;
     }
 
@@ -201,10 +197,7 @@ void standard_wait_flag(int my_core)
 void standard_write_flag(int my_core)
 {
     out_flag[0] = out_flag[0] + 1;
-
-    //if(param.host_mpi_rank == 0 && my_core == 0)
-    //    printf("    ####    write flag %ld, id = %d\n", out_flag[0], my_core);
-
+    athread_syn(ARRAY_SCOPE, CPE_TOTAL_SYNC);
     if(my_core == 0)
     {
         put_reply = 0;
@@ -216,8 +209,6 @@ void standard_write_flag(int my_core)
 
     }
     athread_syn(ARRAY_SCOPE, CPE_TOTAL_SYNC);
-    //if(param.host_mpi_rank == 0 && my_core == 0)
-    //    printf("    ####    write flag %ld\n", out_flag[0]);
 }
 
 static __inline floatv4 __attribute__((__always_inline__)) bilinear_interpolation_qr(floatv4 aa, floatv4 bb, floatv4 cc, floatv4 dd, floatv4 q, floatv4 r)
@@ -2764,8 +2755,6 @@ void cpe_athread_daemon(void *_param)
 
     while (1)
     {
-        //if(param.host_mpi_rank == 0 && my_core == 0)
-        //    printf("    ####    wait host flag %ld\n", slave_flag_to_wait);
         standard_wait_flag(my_core);
 
         if (local_flag[KERNEL_ACTION] == PROPAGAT_FLAG)
@@ -2788,16 +2777,6 @@ void cpe_athread_daemon(void *_param)
 
         if (local_flag[KERNEL_ACTION] == EXIT_FLAG)
         {
-            //ppg_cc /= ppg_time;
-            //ips_cc /= ips_time;
-            ppg_t = (ppg_cc * 1.0) / CCPS;
-            ips_t = (ips_cc * 1.0) / CCPS;
-            if(my_core == 0 && param.host_mpi_rank == 0)
-            {
-                sprintf(strlocal, "cpe ppg cc = %ld, %.4f, ips cc = %ld, %.4f.", ppg_cc, ppg_t, ips_cc, ips_t);
-                //printf("%s\n", s);
-            }
-
             standard_write_flag(my_core);
             standard_write_flag(my_core);
             break;

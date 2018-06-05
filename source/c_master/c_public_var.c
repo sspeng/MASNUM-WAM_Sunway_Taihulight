@@ -188,10 +188,6 @@ volatile int my_rank;
 
 void wait_slave_flag()
 {
-    //if(my_rank == 0)
-    //    printf("wait flag %ld\n", flag_to_wait);
     while(slave_flag[0] < flag_to_wait);
-    //if(my_rank == 0)
-    //    printf("get flag %ld\n", flag_to_wait);
     flag_to_wait++;
 }
